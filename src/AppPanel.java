@@ -66,7 +66,9 @@ public class AppPanel extends JPanel
             }
         });
 
-        lineLengthSelect = new IntegerInput("Line length:", 80, 20, 100, Main.getFormatter()::setMaxLineLength);
+        lineLengthSelect =
+            new IntegerInput("Line length:", Main.INITIAL_LINE_LENGTH, Main.MIN_LINE_LENGTH, Main.MAX_LINE_LENGTH,
+                             Main.getFormatter()::setMaxLineLength);
         justificationGroup = new JustificationGroup(Main.getFormatter()::setJustification);
         spacingGroup = new SpacingGroup(Main.getFormatter()::setSpacing);
 
@@ -98,9 +100,9 @@ public class AppPanel extends JPanel
             {
                 JOptionPane.showMessageDialog(this, "Output File not set");
             }
-            catch (FileFormatter.LineLengthExecption exception)
+            catch (FileFormatter.LineLengthException exception)
             {
-            	JOptionPane.showMessageDialog(this, "Line length is invalid");
+                JOptionPane.showMessageDialog(this, "Line length is invalid");
             }
             catch (FileFormatter.JustificationException exception)
             {

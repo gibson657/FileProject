@@ -13,8 +13,8 @@ public class FileFormatter
     public class InputFileException extends RuntimeException{}
 
     public class OutputFileException extends RuntimeException{}
-    
-    public class LineLengthExecption extends RuntimeException{}
+
+    public class LineLengthException extends RuntimeException{}
 
     public class JustificationException extends RuntimeException{}
 
@@ -53,7 +53,7 @@ public class FileFormatter
 
     public FileFormatter()
     {
-    	maxLineLength = Main.INITIAL_LINE_LENGTH;
+        maxLineLength = Main.INITIAL_LINE_LENGTH;
         justification = Justification.NOT_SET;
         spacing = Spacing.NOT_SET;
     }
@@ -84,15 +84,18 @@ public class FileFormatter
     }
 
     public Results format()
-        throws InputFileException, OutputFileException, LineLengthExecption,JustificationException, SpacingException, IOException
+        throws InputFileException, OutputFileException, LineLengthException, JustificationException, SpacingException,
+               IOException
     {
         if (inputFile == null)
             throw new InputFileException();
 
         if (outputFile == null)
             throw new OutputFileException();
-        if (maxLineLength< Main.MIN_LINE_LENGTH || maxLineLength > Main.MAX_LINE_LENGTH)
-        	throw new LineLengthExecption();
+
+        if (maxLineLength < Main.MIN_LINE_LENGTH || maxLineLength > Main.MAX_LINE_LENGTH)
+            throw new LineLengthException();
+
         if (justification == Justification.NOT_SET)
             throw new JustificationException();
 
@@ -127,7 +130,7 @@ public class FileFormatter
                                          .mapToInt(String::length)
                                          .toArray();
         ArrayList<String> words = nonEmptyLines.stream()
-                                               .flatMap(str -> Stream.of(str.split(" \\s")))
+                                               .flatMap(str -> Stream.of(str.split("\\s")))
                                                .filter(str -> !str.isEmpty())
                                                .collect(Collectors.toCollection(ArrayList::new));
 
@@ -149,38 +152,38 @@ public class FileFormatter
             }
             else
             {
-            	int spacesToAdd = maxLineLength - nextLine.length();
-            	
-            	switch (justification)
-            	{
-            	case LEFT:
-            		spacesToAdd = 0;
-            		break;
-            	case RIGHT:
-            		String spaceSequence = String.join("", Collections.nCopies(spacesToAdd, " "));
-            		nextLine.insert(0, spaceSequence);
-            		break;
-            	case FULL:
-            	int pos= nextLine.indexOf("", 0);
-            		for (int i = 0; i < spacesToAdd; ++i)
-            		{
-            			nextLine.insert(pos , " ");
-            			pos = nextLine.indexOf(" " , pos +2);
-            			if (pos == -1)
-            				pos = nextLine.indexOf(" ",0);
-            			
-            			
-            		}
-            		break;
+                // insert enough spaces to fully right justify the line
+                int spacesToAdd = maxLineLength - nextLine.length();
+
+                switch (justification)
+                {
+                case LEFT:
+                    spacesToAdd = 0;
+                    break;
+                case RIGHT:
+                    String spaceSequence = String.join("", Collections.nCopies(spacesToAdd, " "));
+                    nextLine.insert(0, spaceSequence);
+                    break;
+                case FULL:
+                    int pos = nextLine.indexOf(" ", 0);
+
+                    for (int i = 0; i < spacesToAdd; ++i)
+                    {
+                        nextLine.insert(pos, " ");
+                        pos = nextLine.indexOf(" ", pos + 2);
+                        if (pos == -1)
+                            pos = nextLine.indexOf(" ", 0);
+                    }
+                    break;
                 }
-            	results.spacesAdded += spacesToAdd;
-            	
-            	nextLine.append("\n");
-            	if (spacing == Spacing.DOUBLE)
-            		nextLine.append("\n");
-                
-                
-                out.write(nextLine.toString() + "\n");
+
+                results.spacesAdded += spacesToAdd;
+
+                nextLine.append('\n');
+                if (spacing == Spacing.DOUBLE)
+                    nextLine.append('\n');
+
+                out.write(nextLine.toString());
                 nextLine.setLength(0);
                 nextLine.append(word);
             }
@@ -195,3 +198,4 @@ public class FileFormatter
         return results;
     }
 }
+
